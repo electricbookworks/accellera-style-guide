@@ -72,7 +72,7 @@ To share files between the host OS and the virtual machine, select **Devices** >
 * Folder path: `C:\Users\<user>\<shared folder on host OS>`
 * Folder name: `shared_folder`
 * Mount point: `media`
-* Select tick box **automount**
+* Select tick box **Auto-mount**
 * Select tick box **Make Permanent**
 
 After this, a shared folder located in `/media/sf_shared_folder` is made available, which can be accessed from your host OS via the specified folder path.
@@ -97,6 +97,7 @@ After the reboot, open the terminal window again. A workarea called `workarea` i
 Next, a clone of the repository is made, which contains the Accellera documentation flow and templates.
 
     $ git clone https://github.com/OSCI-WG/tc-documentation.git
+    // enter your GitHub account and password/token to clone the repository
     $ cd tc-documentation
 
 NOTE---Each working group can have its own documentation repository.
@@ -106,8 +107,8 @@ NOTE---Each working group can have its own documentation repository.
 
 Install the Electric Book Works documentation flow by executing the following comment in the repository directory:
 
-    $ cd tc-documentation # or working group specific documentation repository
-    $ bash setup.sh
+    $ cd tc-documentation   # or working group specific documentation repository
+    $ sudo bash setup.sh
 
 All packages for the documentation flow are installed. Also, Visual Studio Code is installed, which can be used as Markdown editor.
 
