@@ -1,5 +1,7 @@
-# Main dependency installation
+# setup.sh
+# Installation script for VirtualBox image
 
+# Main dependency installation
 mkdir download
 cd download
 
