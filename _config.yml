@@ -37,7 +37,7 @@ canonical-url: "https://electricbookworks.github.io"
 # the name of your repo, e.g. /electric-book
 # It must start with a slash. Otherwise you can leave it blank. See:
 # http://downtothewire.io/2015/08/15/configuring-jekyll-for-user-and-project-github-pages/
-baseurl: "/accellera-style-guide"
+baseurl: ""
 
 # GitHub Pages repository
 # -----------------------
@@ -66,10 +66,9 @@ mathjax-enabled: true
 # app, epub: The app and epub collections are off by default, and
 #            turned on by those formats' _config files.
 collections:
-  docs:
+  books:
     output: true
-  api:
-    output: true
+    permalink: ./:path
 
 # --------------------------------------------
 # CHANGE THESE SETTINGS ONLY IF/WHEN NECESSARY

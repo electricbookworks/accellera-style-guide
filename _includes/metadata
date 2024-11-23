@@ -72,7 +72,12 @@ Get the directory for this book only
 We'll rewrite this later if we're in a translation
 {% endcomment %}
 
-{% capture book-directory %}{{ page.path | replace: "/", " " | truncatewords: 1, "" }}{% endcapture %}
+{% comment %}
+MB Since we moved the books to the _books folder,
+we need remove it from the book-directory name
+{% endcomment %}
+
+{% capture book-directory %}{{ page.path | replace: "_books", "" | replace: "/", " " | truncatewords: 1, "" }}{% endcapture %}
 
 {% comment %}Are we really in a listed book directory, or a directory
 in the root that isn't really a listed book?{% endcomment %}
@@ -388,7 +393,12 @@ be sure we're pointing to the webserver root.{% endcomment %}
 {% endif %}
 
 {% comment %}Create a short tag for the path to images.{% endcomment %}
-{% capture images %}{{ path-to-book-directory }}{{ site.image-set }}{% endcapture %}
+
+{% comment %}
+MB We removed the path-to-book-directory for images,
+path to images are relative now
+{% endcomment %}
+{% capture images %}{{ site.image-set }}{% endcapture %}
 
 {% comment %}
 If site.build-language is defined, and matches a translation directory,
@@ -402,7 +412,7 @@ such as the home and search pages, when building a single-language site or app.
     {% endif %}
 {% endfor %}
 {% if site.build-language and site.build-language != "" and build-language-is-translation == true %}
-    {% capture images %}{{ path-to-book-directory }}{{ site.build-language }}/{{ site.image-set }}{% endcapture %}
+    {% capture images %}{{ site.build-language }}/{{ site.image-set }}{% endcapture %}
 {% endif %}
 
 {% comment %}If this is a translation, and a language subfolder of images exists,
