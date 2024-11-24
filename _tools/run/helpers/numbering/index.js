@@ -399,7 +399,7 @@ async function numberSections(argv, files) {
   console.log('INFO: Numbering 2nd pass...');
 
   // first copy updated source files again to temp folder
-  fs.copySync(process.cwd() + '/' + argv.book, process.cwd() + '/.temp/' + argv.book);
+  fs.copySync(process.cwd() + '/_books/' + argv.book, process.cwd() + '/.temp/' + argv.book);
 
   resetSectionNumbering();
   for (let i = 0; i < files.length; i++) {

@@ -831,7 +831,7 @@ function markdownFilePaths (argv, extension) {
 
   const fileNames = fileList(argv)
   const pathToTempSource = process.cwd() + '/.temp/' + book + '/'
-  const pathToSource = process.cwd() + '/' + book + '/'
+  const pathToSource = process.cwd() + '/_books/' + book + '/'
 
   fsPromises.mkdir(pathToTempSource, { recursive: true })
 
