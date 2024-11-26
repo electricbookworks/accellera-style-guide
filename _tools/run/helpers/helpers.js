@@ -604,6 +604,8 @@ async function convertXHTMLFiles (argv) {
 async function renderNumbering (argv) {
   'use strict'
 
+  if (argv['section-numbering'] == -1) return; // skip when disabled
+
   const fileNames = markdownFilePaths(argv);
   await numberSections(argv, fileNames, {});
 }
@@ -831,7 +833,7 @@ function markdownFilePaths (argv, extension) {
 
   const fileNames = fileList(argv)
   const pathToTempSource = process.cwd() + '/.temp/' + book + '/'
-  const pathToSource = process.cwd() + '/_books/' + book + '/'
+  const pathToSource = process.cwd() + '/' + book + '/'
 
   fsPromises.mkdir(pathToTempSource, { recursive: true })
 
@@ -1751,6 +1753,7 @@ module.exports = {
   openOutputFile,
   outputTOC,
   pathExists,
+  projectSettings,
   processImages,
   refreshIndexes,
   renderIndexComments,
