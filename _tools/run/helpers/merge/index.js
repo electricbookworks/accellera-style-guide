@@ -15,7 +15,7 @@ const projectSettings = require('../helpers').projectSettings
 // Make IDs in HTML unique by prefixing them
 // with the slug of the filename, and updating
 // any links that point to them.
-function updateIDs (filename, dom, argv) {
+function updateIDs(filename, dom, argv) {
   return new Promise(function (resolve, reject) {
     try {
       // Prefix IDs with a no-spaces, no-fullstops filename
@@ -48,8 +48,8 @@ function updateIDs (filename, dom, argv) {
         internalLinks = linksArray.filter(function (link) {
           let isInternal = true
           if (link.href.startsWith('https://') ||
-              link.href.startsWith('mailto:') ||
-              link.href.startsWith('http://')) {
+            link.href.startsWith('mailto:') ||
+            link.href.startsWith('http://')) {
             isInternal = false
           }
           return isInternal
@@ -115,8 +115,7 @@ function updateIDs (filename, dom, argv) {
   })
 }
 
-
-function getToCItems(items, dom, parent, init=false) {
+function getToCItems(items, dom, parent, init = false) {
   let start = init;
   for (let i = 0; i < items.length; i++) {
     let item = items[i];
@@ -125,48 +124,67 @@ function getToCItems(items, dom, parent, init=false) {
     let listElement = dom.window.document.createElement('li');
     listElement.className = "toc-entry-title";
     let refElement = dom.window.document.createElement('a');
-    refElement.href = '#file-' + item.file + '-html-' + item.id;
+    refElement.href = '#' + item.id;
     let spanElement = dom.window.document.createElement("span");
-    spanElement.className="toc-entry-text"
+    spanElement.className = "toc-entry-text"
     spanElement.innerHTML = item.label.replace(/(<\/?strong>)/gi, "").replace(/(<\/?b>)/gi, ""); // remove strong/bold
     refElement.appendChild(spanElement);
     listElement.appendChild(refElement);
-    if (item.children && item.children.length) { 
+    if (item.children && item.children.length) {
       let olistElement = dom.window.document.createElement('ol');
       olistElement.className = "toc-list";
       listElement.appendChild(olistElement);
       getToCItems(item.children, dom, olistElement, start);
-    } 
+    }
     parent.appendChild(listElement);
   };
 }
 
-async function updateToC(argv, dom) {
-  const headingLevels = projectSettings()[argv.format].toc['heading-levels']
-  const tocList = await buildTocNav('', headingLevels)
-  //console.log(' toc', headingLevels, JSON.stringify(toc));
+function updateToC(data, argv, dom) {
+  console.log('Embedding ToC...')
   let tocElements = dom.window.document.getElementsByClassName('toc-list');
-  let tocElement = tocElements[tocElements.length-1]; // get last element
-  //console.log(tocElement);
+  let tocElement = tocElements[tocElements.length - 1]; // get last element
+  getToCItems(data, dom, tocElement);
+}
 
-  getToCItems(tocList, dom, tocElement);
+function extractHeaders(dom, argv) {
+  let headerElements = [];
+  const headingLevels = projectSettings()[argv.format].toc['heading-levels'];
+  const allHeadings = dom.window.document.querySelectorAll(headingLevels.join(', '));
+
+  allHeadings.forEach(item => {
+    headerElements.push({
+      id: item.id,
+      label: item.innerHTML,
+      level: parseInt(item.nodeName[1])
+    });
+  });
+
+  const outputList = headerElements.reduce((arr, { level, ...rest }) => {
+    const value = { ...rest, children: [] }
+    arr[level] = value.children
+    arr[level - 1].push(value)
+    return arr
+  }, [[]]).shift();
+  return outputList[0];
 }
 
 // Merge source HTML files into a single file
-async function merge (argv) {
+async function merge(argv) {
   // Don't merge files if --merged has not
   // been passed at the command line
   if (argv.merged === false) {
     return
   }
 
-  console.log('Merging HTML files ...')
+  console.log('Merging HTML files...')
 
   return new Promise(function (resolve, reject) {
     try {
       const filePaths = htmlFilePaths(argv)
       let fileCounter = 1
       let mergedDom
+      let tocEntries = [];
       const destination = fsPath.dirname(filePaths[0]) + '/merged.html'
 
       filePaths.forEach(async function (filePath) {
@@ -176,6 +194,9 @@ async function merge (argv) {
         // Update the IDs and links
         const filename = fsPath.basename(filePath)
         dom = await updateIDs(filename, dom, argv)
+
+        // extract headers 
+        tocEntries.push(extractHeaders(dom, argv));
 
         // If this is the first file, we'll use it as our base,
         // to which we'll append the remaining files.
@@ -195,7 +216,7 @@ async function merge (argv) {
         // that loads bundle.js, so it doesn't load multiple times.
         if (fileCounter === filePaths.length) {
 
-          await updateToC(argv, mergedDom);
+          updateToC(tocEntries, argv, mergedDom);
 
           console.log('Writing merged HTML to ' + destination)
           fsPromises.writeFile(destination, mergedDom.serialize())

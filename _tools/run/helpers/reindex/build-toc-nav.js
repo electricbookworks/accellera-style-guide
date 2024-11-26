@@ -119,19 +119,16 @@ async function buildTocNav(outputFormat, headingLevels) {
   }).replace(/\s*children: \[\]\n/g, '\n')
 
   // Write to the output file
-  if (outputFormat == 'file') {
-    fs.writeFile(fsPath.normalize(process.cwd() + '/_output/toc.yml'),
-      yamlOutput,
-      (err) => {
-        if (err) {
-          console.log(err)
-        } else {
-          console.log('File written successfully')
-        }
+  fs.writeFile(fsPath.normalize(process.cwd() + '/_output/toc.yml'),
+    yamlOutput,
+    (err) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log('File written successfully')
       }
-    );
-  }
-  return tocObj.l1.l2.toc;
+    }
+  );
 }
 
 // Run the rendering process.
