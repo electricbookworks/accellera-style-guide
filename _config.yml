@@ -65,10 +65,8 @@ mathjax-enabled: true
 #            as you work. To turn off the docs, change output to false.
 # app, epub: The app and epub collections are off by default, and
 #            turned on by those formats' _config files.
-collections:
-  books:
-    output: true
-    permalink: ./:path
+#collections:
+
 
 # --------------------------------------------
 # CHANGE THESE SETTINGS ONLY IF/WHEN NECESSARY
@@ -112,6 +110,9 @@ exclude:
   - package-lock.json
   - CNAME
   - .sass-cache
+  - Docker*
+  - netlify.toml
+  - setup.sh
 
   # Included as-is in other files, no need to process
   - /assets/js/annotation.js

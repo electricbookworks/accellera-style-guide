@@ -6,9 +6,11 @@ const { JSDOM } = jsdom
 const fs = require('fs-extra')
 const fsPath = require('path')
 const fsPromises = require('fs/promises')
+const buildTocNav = require('../reindex/build-toc-nav.js')
 
 // Local helpers
 const htmlFilePaths = require('../helpers').htmlFilePaths
+const projectSettings = require('../helpers').projectSettings
 
 // Make IDs in HTML unique by prefixing them
 // with the slug of the filename, and updating
@@ -113,6 +115,43 @@ function updateIDs (filename, dom, argv) {
   })
 }
 
+
+function getToCItems(items, dom, parent, init=false) {
+  let start = init;
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i];
+    if (item.label.substring(0, 2) == '1.') { start = true; }
+    if (!start) continue;  // skip all entries before clause 1
+    let listElement = dom.window.document.createElement('li');
+    listElement.className = "toc-entry-title";
+    let refElement = dom.window.document.createElement('a');
+    refElement.href = '#file-' + item.file + '-html-' + item.id;
+    let spanElement = dom.window.document.createElement("span");
+    spanElement.className="toc-entry-text"
+    spanElement.innerHTML = item.label.replace(/(<\/?strong>)/gi, "").replace(/(<\/?b>)/gi, ""); // remove strong/bold
+    refElement.appendChild(spanElement);
+    listElement.appendChild(refElement);
+    if (item.children && item.children.length) { 
+      let olistElement = dom.window.document.createElement('ol');
+      olistElement.className = "toc-list";
+      listElement.appendChild(olistElement);
+      getToCItems(item.children, dom, olistElement, start);
+    } 
+    parent.appendChild(listElement);
+  };
+}
+
+async function updateToC(argv, dom) {
+  const headingLevels = projectSettings()[argv.format].toc['heading-levels']
+  const tocList = await buildTocNav('', headingLevels)
+  //console.log(' toc', headingLevels, JSON.stringify(toc));
+  let tocElements = dom.window.document.getElementsByClassName('toc-list');
+  let tocElement = tocElements[tocElements.length-1]; // get last element
+  //console.log(tocElement);
+
+  getToCItems(tocList, dom, tocElement);
+}
+
 // Merge source HTML files into a single file
 async function merge (argv) {
   // Don't merge files if --merged has not
@@ -155,6 +194,9 @@ async function merge (argv) {
         // If this is not the last file, remove the script tag
         // that loads bundle.js, so it doesn't load multiple times.
         if (fileCounter === filePaths.length) {
+
+          await updateToC(argv, mergedDom);
+
           console.log('Writing merged HTML to ' + destination)
           fsPromises.writeFile(destination, mergedDom.serialize())
           resolve(true)
