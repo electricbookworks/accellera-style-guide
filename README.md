@@ -4,7 +4,7 @@ The Accellera Documentation Flow offers the infrastructure to develop and publis
 
 The documentation flow is documented in the Accellera Style Guide, which explains the Markdown formatting and styles to create IEEE SA Standards compliant documents.
 
-# Usage
+## Usage
 
 The document sources shall be located in `_books/<standard-document>`.
 
@@ -13,7 +13,7 @@ The document metadata (e.g. properties) shall be located in `_data/works/<standa
 To render a PDF document using the Accellera Documentation Flow, use the following command:
 
 ```sh
-npm run eb -- output --format screen-pdf --book <standard-document>
+$ npm run eb -- output --format screen-pdf --book <standard-document>
 ```
 
 It will generate a PDF document in the `_output` directory.
