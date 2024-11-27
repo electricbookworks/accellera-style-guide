@@ -119,7 +119,9 @@ function getToCItems(items, dom, parent, init = false) {
   let start = init;
   for (let i = 0; i < items.length; i++) {
     let item = items[i];
-    if (item.label.substring(0, 2) == '1.') { start = true; }
+    if (item && item.label && item.label.length && item.label.substring(0, 2) == '1.') {
+      start = true;
+    }
     if (!start) continue;  // skip all entries before clause 1
     let listElement = dom.window.document.createElement('li');
     listElement.className = "toc-entry-title";
@@ -195,8 +197,11 @@ async function merge(argv) {
         const filename = fsPath.basename(filePath)
         dom = await updateIDs(filename, dom, argv)
 
-        // extract headers 
-        tocEntries.push(extractHeaders(dom, argv));
+	      // extract headers 
+        const headers = extractHeaders(dom, argv);
+        if (headers) {
+          tocEntries.push(headers);
+        }
 
         // If this is the first file, we'll use it as our base,
         // to which we'll append the remaining files.

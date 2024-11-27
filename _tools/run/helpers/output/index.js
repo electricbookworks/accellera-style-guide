@@ -30,12 +30,12 @@ const {
 } = require('../helpers.js')
 const merge = require('../merge')
 
-async function moveBook(argv, from, to, removeFrom=false) {
+async function copyBooks(argv, from, to, emptyDir=false) {
   await fs.emptyDir(process.cwd() + to + argv.book);
-  // first copy source files in _books to root folder
+  // first copy source files in books to root folder
   // such that jekyll finds them
   fs.copySync(process.cwd() + from + argv.book, process.cwd() + to + argv.book);
-  if (removeFrom) {
+  if (emptyDir) {
     await fs.emptyDir(process.cwd() + from + argv.book);
   }
 }
@@ -59,13 +59,13 @@ async function pdf (argv) {
 
   try {
     await fs.emptyDir(process.cwd() + '/_site')
-    await moveBook(argv, '/_books/','/');
+    await copyBooks(argv, '/books/','/');
     await renderNumbering(argv)
     await jekyll(argv)
     await renderIndexComments(argv)
     await renderIndexLinks(argv)
     await merge(argv)
-    await moveBook(argv, '/','/_books/', true);
+    await copyBooks(argv, '/','/books/', true);
     await renderMathjax(argv)
     if (argv['pdf-engine'] === 'pagedjs') {
       await runPagedJS(argv)
@@ -207,6 +207,5 @@ module.exports = {
   app,
   pdf,
   web,
-  epub,
-  moveBook
+  epub
 }
