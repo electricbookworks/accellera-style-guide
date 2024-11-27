@@ -142,11 +142,17 @@ function getToCItems(items, dom, parent, init = false) {
   };
 }
 
-function updateToC(data, argv, dom) {
+function updateToC(data, dom) {
   console.log('Embedding ToC...')
+  const outputList = data.reduce((arr, { level, ...rest }) => {
+    const value = { ...rest, children: [] }
+    arr[level] = value.children
+    arr[level - 1].push(value)
+    return arr
+  }, [[]]).shift();
   let tocElements = dom.window.document.getElementsByClassName('toc-list');
   let tocElement = tocElements[tocElements.length - 1]; // get last element
-  getToCItems(data, dom, tocElement);
+  getToCItems(outputList, dom, tocElement);
 }
 
 function extractHeaders(dom, argv) {
@@ -155,21 +161,16 @@ function extractHeaders(dom, argv) {
   const allHeadings = dom.window.document.querySelectorAll(headingLevels.join(', '));
 
   allHeadings.forEach(item => {
-    headerElements.push({
-      id: item.id,
-      label: item.innerHTML,
-      level: parseInt(item.nodeName[1])
-    });
+    if (!item.classList.contains('no-toc')) {
+      headerElements.push({
+        id: item.id,
+        label: item.innerHTML,
+        level: parseInt(item.nodeName[1])
+      });
+    }
   });
-
-  const outputList = headerElements.reduce((arr, { level, ...rest }) => {
-    const value = { ...rest, children: [] }
-    arr[level] = value.children
-    arr[level - 1].push(value)
-    return arr
-  }, [[]]).shift();
-  return outputList[0];
-}
+  return headerElements;
+} 
 
 // Merge source HTML files into a single file
 async function merge(argv) {
@@ -199,8 +200,8 @@ async function merge(argv) {
 
 	      // extract headers 
         const headers = extractHeaders(dom, argv);
-        if (headers) {
-          tocEntries.push(headers);
+        if (headers.length) {
+          tocEntries = [ ...tocEntries, ...headers ];
         }
 
         // If this is the first file, we'll use it as our base,
@@ -220,9 +221,7 @@ async function merge(argv) {
         // If this is not the last file, remove the script tag
         // that loads bundle.js, so it doesn't load multiple times.
         if (fileCounter === filePaths.length) {
-
-          updateToC(tocEntries, argv, mergedDom);
-
+          updateToC(tocEntries, mergedDom);
           console.log('Writing merged HTML to ' + destination)
           fsPromises.writeFile(destination, mergedDom.serialize())
           resolve(true)
