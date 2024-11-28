@@ -156,13 +156,12 @@ async function numberSections(argv, files) {
     const chapter = block.match(/style: chapter/);
     const annex = block.match(/style: annex/);
     const xref = [...block.matchAll(/(\[[0-9a-zA-Z\s.\-]+\]|\[\])\((([^\s^\)]+)?)\)/gi)];
-    const codeblock = [...block.matchAll(/^\`{3}/gi)];
+    const codeblockStart = block.match(/^\`{3}/);
     const codeblockEnd = block.match(/\`{3}\n\n$/);
     const rawblockStart = block.match(/^\{\%\s*raw\s*\%\}/);
     const rawblockEnd = block.match(/\{\%\s*endraw\s*\%\}\n\n/);
     const commentblockStart = block.match(/^\{\%\s*comment\s*\%\}/);
     const commentblockEnd = block.match(/\{\%\s*endcomment\s*\%\}\n\n/);
-
     const table = block.match(/^\{\%\s+include\s+table/);
     const figure = block.match(/^\{\%\s+include\s+figure/);
     const equation = block.match(/^\{\%\s+include\s+equation/);
@@ -174,11 +173,8 @@ async function numberSections(argv, files) {
       return block;
     }
 
-    if (codeblock.length) {
-      if (codeblock.length % 2) { // odd number, marks start or end
-        this.inCodeBlock = !this.inCodeBlock;
-      }
-      return block; // skip block
+    if(codeblockStart && !codeblockEnd) {
+      this.inCodeBlock = true;
     }
 
     if(rawblockStart && !rawblockEnd) {
