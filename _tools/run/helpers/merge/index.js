@@ -143,7 +143,6 @@ function getToCItems(items, dom, parent, init = false) {
 }
 
 function updateToC(data, dom) {
-  console.log('Embedding ToC...')
   const outputList = data.reduce((arr, { level, ...rest }) => {
     const value = { ...rest, children: [] }
     arr[level] = value.children
@@ -152,6 +151,8 @@ function updateToC(data, dom) {
   }, [[]]).shift();
   let tocElements = dom.window.document.getElementsByClassName('toc-list');
   let tocElement = tocElements[tocElements.length - 1]; // get last element
+  if (!tocElement) return; // no toc-list placeholder found, so no need to generate ToC
+  console.log('Embedding ToC...')
   getToCItems(outputList, dom, tocElement);
 }
 
