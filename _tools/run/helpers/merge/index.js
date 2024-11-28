@@ -70,9 +70,10 @@ function updateIDs(filename, dom, argv) {
           // and only keep the filename.
           // If it's to another book, we must leave the link as is,
           // and set a flag that prevents us from changing it later.
+          // MB: In case the href contains a starting slash, we need to remove the empty array element
           let hrefIsToThisBook = true
           if (href.match(/\//)) {
-            const hrefAsArray = href.replace(/^\.\.\//, '').split('/')
+            const hrefAsArray = href.replace(/^\.\.\//, '').split('/').filter( i => i != '')
             if (hrefAsArray[0] === argv.book) {
               href = hrefAsArray.pop()
             } else {
