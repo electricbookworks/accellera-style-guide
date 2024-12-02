@@ -62,10 +62,11 @@ async function pdf (argv) {
     await copyBooks(argv, '/books/','/');
     await renderNumbering(argv)
     await jekyll(argv)
-    await copyBooks(argv, '/','/books/', true);
     await renderIndexComments(argv)
     await renderIndexLinks(argv)
     await merge(argv)
+    await copyBooks(argv, '/','/_output/update/', true);
+    await copyBooks(argv, '/_site/','/_output/html/');
     await renderMathjax(argv)
     if (argv['pdf-engine'] === 'pagedjs') {
       await runPagedJS(argv)

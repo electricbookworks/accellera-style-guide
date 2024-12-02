@@ -98,9 +98,9 @@ COPY Gemfile .
 RUN bash -lc "bundle install"
 
 # Switch to the user account
-RUN useradd -ms /bin/bash accellera
-USER accellera
-WORKDIR /home/accellera
+RUN useradd -ms /bin/bash adf
+USER adf
+WORKDIR /home/adf
 
 # Set paths for Ruby gems
 RUN echo '# Define Ruby Gems path' >> ~/.bashrc
@@ -109,7 +109,7 @@ RUN echo 'export PATH="$HOME/.rvm/gems/ruby-2.7.6:$PATH"' >> ~/.bashrc
 RUN bash -lc "source ~/.bashrc"
 
 # Copy all flow elements to container
-COPY --chown=accellera:accellera . .
+COPY --chown=adf:adf . .
 
 # Install Accellera Documentation Flow
 RUN npm install
