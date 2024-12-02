@@ -20,27 +20,24 @@ RUN apt-get update && apt-get install -y \
   ruby-full
 
 # Dependencies specifically for Puppeteer on unix
-RUN apt-get install -y \
-  libasound2 \
-  libatk1.0-0 \
-  libatk-bridge2.0-0 \
-  libcairo2 \
-  libdrm2 \
-  libgbm1 \
-  libnss3 \
-  libpango-1.0-0 \
-  libxkbcommon-x11-0 \
-  libxcomposite1 \
-  libxdamage1 \
-  libxfixes3 \
-  libxrandr2
+#RUN apt-get install -y \
+#  libasound2 \
+#  libatk1.0-0 \
+#  libatk-bridge2.0-0 \
+#  libcairo2 \
+#  libdrm2 \
+#  libgbm1 \
+#  libnss3 \
+#  libpango-1.0-0 \
+#  libxkbcommon-x11-0 \
+#  libxcomposite1 \
+#  libxdamage1 \
+#  libxfixes3 \
+#  libxrandr2
 
 # Install Microsoft Core Fonts
 RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections
 RUN apt-get install ttf-mscorefonts-installer -y
-
-# # Clear apt cache to make image smaller
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Add node source for new nodejs, instead of old Ubuntu-installed node.
 # https://github.com/nodesource/distributions/wiki/How-to-migrate-to-the-new-repository
@@ -72,17 +69,20 @@ ENV LC_ALL C.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
+# Clear apt cache to make image smaller
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/*
+
 # Install libssl1.1
 RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb && \
   dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 
 # Install PrinceXML for printing to PDF
-RUN wget https://www.princexml.com/download/prince_11.4-1_ubuntu18.04_amd64.deb --no-check-certificate && \
-  dpkg -i prince_11.4-1_ubuntu18.04_amd64.deb
+#RUN wget https://www.princexml.com/download/prince_11.4-1_ubuntu18.04_amd64.deb --no-check-certificate && \
+#  dpkg -i prince_11.4-1_ubuntu18.04_amd64.deb
 
 # Install pandoc for document conversion
-RUN wget https://github.com/jgm/pandoc/releases/download/2.5/pandoc-2.5-1-amd64.deb --no-check-certificate && \
-  dpkg -i pandoc-2.5-1-amd64.deb
+#RUN wget https://github.com/jgm/pandoc/releases/download/2.5/pandoc-2.5-1-amd64.deb --no-check-certificate && \
+#  dpkg -i pandoc-2.5-1-amd64.deb
 
 # Update npm
 RUN npm install -g npm@latest
@@ -98,9 +98,9 @@ COPY Gemfile .
 RUN bash -lc "bundle install"
 
 # Switch to the user account
-RUN useradd -ms /bin/bash accellera
-USER accellera
-WORKDIR /home/accellera
+RUN useradd -ms /bin/bash adf
+USER adf
+WORKDIR /home/adf
 
 # Set paths for Ruby gems
 RUN echo '# Define Ruby Gems path' >> ~/.bashrc
@@ -109,7 +109,7 @@ RUN echo 'export PATH="$HOME/.rvm/gems/ruby-2.7.6:$PATH"' >> ~/.bashrc
 RUN bash -lc "source ~/.bashrc"
 
 # Copy all flow elements to container
-COPY --chown=accellera:accellera . .
+COPY --chown=adf:adf . .
 
 # Install Accellera Documentation Flow
 ENV NODE_TLS_REJECT_UNAUTHORIZED=0 

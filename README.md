@@ -6,9 +6,9 @@ The documentation flow is documented in the Accellera Style Guide, which explain
 
 ## Usage
 
-The document sources shall be located in `_books/<standard-document>`.
+The document sources shall be located in directory `books/<standard-document>/`.
 
-The document metadata (e.g. properties) shall be located in `_data/works/<standard-document>`.
+The document metadata (e.g. properties) shall be located in directory `_data/works/<standard-document>/`.
 
 To render a PDF document using the Accellera Documentation Flow, use the following command:
 

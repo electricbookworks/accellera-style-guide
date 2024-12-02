@@ -148,6 +148,7 @@ exclude:
 
   # Files for formats we're not building here
   - /assets/profiles
+  - /books/*
   - /*/package.opf
   - /*/toc.ncx
   - /*/images/print-pdf

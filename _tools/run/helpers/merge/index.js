@@ -70,9 +70,10 @@ function updateIDs(filename, dom, argv) {
           // and only keep the filename.
           // If it's to another book, we must leave the link as is,
           // and set a flag that prevents us from changing it later.
+          // MB: In case the href contains a starting slash, we need to remove the empty array element
           let hrefIsToThisBook = true
           if (href.match(/\//)) {
-            const hrefAsArray = href.replace(/^\.\.\//, '').split('/')
+            const hrefAsArray = href.replace(/^\.\.\//, '').split('/').filter( i => i != '')
             if (hrefAsArray[0] === argv.book) {
               href = hrefAsArray.pop()
             } else {
@@ -119,7 +120,9 @@ function getToCItems(items, dom, parent, init = false) {
   let start = init;
   for (let i = 0; i < items.length; i++) {
     let item = items[i];
-    if (item.label.substring(0, 2) == '1.') { start = true; }
+    if (item && item.label && item.label.length && item.label.substring(0, 2) == '1.') {
+      start = true;
+    }
     if (!start) continue;  // skip all entries before clause 1
     let listElement = dom.window.document.createElement('li');
     listElement.className = "toc-entry-title";
@@ -140,11 +143,18 @@ function getToCItems(items, dom, parent, init = false) {
   };
 }
 
-function updateToC(data, argv, dom) {
-  console.log('Embedding ToC...')
+function updateToC(data, dom) {
+  const outputList = data.reduce((arr, { level, ...rest }) => {
+    const value = { ...rest, children: [] }
+    arr[level] = value.children
+    arr[level - 1].push(value)
+    return arr
+  }, [[]]).shift();
   let tocElements = dom.window.document.getElementsByClassName('toc-list');
   let tocElement = tocElements[tocElements.length - 1]; // get last element
-  getToCItems(data, dom, tocElement);
+  if (!tocElement) return; // no toc-list placeholder found, so no need to generate ToC
+  console.log('Embedding ToC...')
+  getToCItems(outputList, dom, tocElement);
 }
 
 function extractHeaders(dom, argv) {
@@ -153,21 +163,16 @@ function extractHeaders(dom, argv) {
   const allHeadings = dom.window.document.querySelectorAll(headingLevels.join(', '));
 
   allHeadings.forEach(item => {
-    headerElements.push({
-      id: item.id,
-      label: item.innerHTML,
-      level: parseInt(item.nodeName[1])
-    });
+    if (!item.classList.contains('no-toc')) {
+      headerElements.push({
+        id: item.id,
+        label: item.innerHTML,
+        level: parseInt(item.nodeName[1])
+      });
+    }
   });
-
-  const outputList = headerElements.reduce((arr, { level, ...rest }) => {
-    const value = { ...rest, children: [] }
-    arr[level] = value.children
-    arr[level - 1].push(value)
-    return arr
-  }, [[]]).shift();
-  return outputList[0];
-}
+  return headerElements;
+} 
 
 // Merge source HTML files into a single file
 async function merge(argv) {
@@ -195,8 +200,11 @@ async function merge(argv) {
         const filename = fsPath.basename(filePath)
         dom = await updateIDs(filename, dom, argv)
 
-        // extract headers 
-        tocEntries.push(extractHeaders(dom, argv));
+	      // extract headers 
+        const headers = extractHeaders(dom, argv);
+        if (headers.length) {
+          tocEntries = [ ...tocEntries, ...headers ];
+        }
 
         // If this is the first file, we'll use it as our base,
         // to which we'll append the remaining files.
@@ -215,9 +223,7 @@ async function merge(argv) {
         // If this is not the last file, remove the script tag
         // that loads bundle.js, so it doesn't load multiple times.
         if (fileCounter === filePaths.length) {
-
-          updateToC(tocEntries, argv, mergedDom);
-
+          updateToC(tocEntries, mergedDom);
           console.log('Writing merged HTML to ' + destination)
           fsPromises.writeFile(destination, mergedDom.serialize())
           resolve(true)
