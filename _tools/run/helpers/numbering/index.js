@@ -7,10 +7,13 @@ const { ebSlugify } = require('../../../gulp/helpers/utilities.js');
 async function numberSections(argv, files) {
 
   this.isChapter = false;
+  this.inCodeBlock = false;
+  this.inRawBlock = false;
+  this.inCommentBlock = false;
   this.annexLevel = 0;
   this.topicName = [];
   this.override = argv.override;
-  this.numberingDepth = (argv['section-numbering'] > 0 && argv['section-numbering'] < 6) ? argv['section-numbering'] : 5;
+  this.numberingDepth = (argv['section-numbering'] > -1 && argv['section-numbering'] < 6) ? argv['section-numbering'] : 5;
   this.section = {};
   this.figureNumber = 0;
   this.tableNumber = 0;
@@ -138,7 +141,7 @@ async function numberSections(argv, files) {
     // required for figures
     for await (const line of lineReader) {
       block += line + '\n';
-      if (line == '') {
+      if (line.replace(' ','') == '') { // make sure we detect 'empty lines' which only contain spaces
         const updatedBlock = updateBlock(block, updateXref);
         writeStream.write(updatedBlock);
         block = '';
@@ -148,17 +151,20 @@ async function numberSections(argv, files) {
     return waitForStreamClose(writeStream);
   }
 
-  function updateBlock (block, updateXref) {
+  function updateBlock(block, updateXref) {
     const section = block.match(/^#+/);
     const chapter = block.match(/style: chapter/);
     const annex = block.match(/style: annex/);
     const xref = [...block.matchAll(/(\[[0-9a-zA-Z\s.\-]+\]|\[\])\((([^\s^\)]+)?)\)/gi)];
-    const codeblock = block.match(/^\`\`\`/);
-    const rawblock = block.match(/^\{\%\s+raw\s+\%\}/);
+    const codeblockStart = block.match(/^\`{3}/);
+    const codeblockEnd = block.match(/\`{3}\n\n$/);
+    const rawblockStart = block.match(/^\{\%\s*raw\s*\%\}/);
+    const rawblockEnd = block.match(/\{\%\s*endraw\s*\%\}\n\n/);
+    const commentblockStart = block.match(/^\{\%\s*comment\s*\%\}/);
+    const commentblockEnd = block.match(/\{\%\s*endcomment\s*\%\}\n\n/);
     const table = block.match(/^\{\%\s+include\s+table/);
     const figure = block.match(/^\{\%\s+include\s+figure/);
     const equation = block.match(/^\{\%\s+include\s+equation/);
-
     if (xref.length && updateXref) {
       return updateCrossReference(xref, block);
     }
@@ -167,14 +173,21 @@ async function numberSections(argv, files) {
       return block;
     }
 
-    // no not process codeblocks, rawblocks
-    if (codeblock || rawblock) {
-      return block;
+    if(codeblockStart && !codeblockEnd) {
+      this.inCodeBlock = true;
+    }
+
+    if(rawblockStart && !rawblockEnd) {
+      this.inRawBlock = true;
+    }
+
+    if(commentblockStart && !commentblockEnd) {
+      this.inCommentBlock = true;
     }
 
     if (chapter) {
       this.isChapter = true;
-      this.annexLevel=0;
+      this.annexLevel = 0;
     }
 
     if (annex) {
@@ -186,21 +199,33 @@ async function numberSections(argv, files) {
       this.figureNumber = 0;
     }
 
-    if (section && (this.isChapter || this.annexLevel>0)) {
+    if (section && (this.isChapter || this.annexLevel>0) && !this.inCodeBlock && !this.inRawBlock && !this.inCommentBlock) {
       level = section[0].length;
       return updateSectionNumber(block, level);
     }
 
-    if (table) {
+    if (table && !this.inCodeBlock && !this.inRawBlock && !this.inCommentBlock) {
       return updateTableReference(block);
     }
 
-    if (figure) {
+    if (figure && !this.inCodeBlock && !this.inRawBlock && !this.inCommentBlock) {
       return updateFigureReference(block);
     }
 
-    if (equation) {
+    if (equation && !this.inCodeBlock && !this.inRawBlock && !this.inCommentBlock) {
       return updateEquationReference(block);
+    }
+
+    if (codeblockEnd) {
+      this.inCodeBlock = false;
+    }
+
+    if(rawblockEnd) {
+      this.inRawBlock = false;
+    }
+
+    if(commentblockEnd) {
+      this.inCommentBlock = false;
     }
 
     return block; // no change if no other match found

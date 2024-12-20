@@ -5,7 +5,7 @@ const fsPromises = require('fs/promises')
 const yaml = require('js-yaml')
 
 // The main process for generating TOC YAML
-async function buildTocNav (outputFormat, headingLevels) {
+async function buildTocNav(outputFormat, headingLevels) {
   'use strict'
 
   const tocObj = {
@@ -106,7 +106,7 @@ async function buildTocNav (outputFormat, headingLevels) {
 
   // Create empty output file to write to, if it doesn't exist
   const outputFilePath = fsPath.normalize(process.cwd() +
-      '/_output/toc.yml')
+    '/_output/toc.yml')
   if (!fs.existsSync(outputFilePath)) {
     console.log('Creating ' + outputFilePath)
     await fsPromises.writeFile(outputFilePath, '')
@@ -128,7 +128,7 @@ async function buildTocNav (outputFormat, headingLevels) {
         console.log('File written successfully')
       }
     }
-  )
+  );
 }
 
 // Run the rendering process.

@@ -31,6 +31,9 @@ exclude:
   - eslint.json
   - CHANGELOG.md
   - /*/images/source
+  - Docker*
+  - netlify.toml
+  - setup.sh
 
   # Included as-is in other files, no need to process
   - /assets/js/annotation.js
@@ -84,6 +87,7 @@ exclude:
   - /*/styles/app*
   - /*/package.opf
   - /*/toc.ncx
+  - /books/*
 
   # Exclude web images only if you keep_files them below
   # - /*/images/web

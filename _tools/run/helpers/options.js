@@ -128,7 +128,7 @@ const options = {
   'section-numbering': {
     description: 'Depth of section (re)numbering in the book',
     alias: 's',
-    default: 0,
+    default: -1,
     defaultDescription: '0',
     type: 'number'
   },
