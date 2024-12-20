@@ -13,8 +13,16 @@ npm run electric-book -- <command> [options]
 npm run eb -- <command> [options]
 
 commands:
+  npm run eb -- check    Check project files and folders
+  npm run eb -- export   Export to another file format
+  npm run eb -- images   Process source images for output
   npm run eb -- help     Show available commands and options
+  npm run eb -- index    Refresh search and book indexes
+  npm run eb -- install  Install or update dependencies
+  npm run eb -- new      Copy a book to create a new one
   npm run eb -- output   Generate a project or publication
+  npm run eb -- package  Create a zip file of this project
+  npm run eb -- toc      Build table of contents
 
 options:
   -h, --help                Show available commands and options
@@ -44,26 +52,20 @@ options:
 
 ## B.2 Examples
 
-Create a PDF for the Accellera standard template (`accellera-standard-template`):
-
-```bash
-npm run electric-book -- output --format screen-pdf --book accellera-standard-template
-```
-
 Create a PDF for the Accellera Style Guide (`accellera-style-guide`):
 
 ```bash
-npm run electric-book -- output --format screen-pdf --book accellera-style-guide
+$ npm run electric-book -- output --format screen-pdf --book accellera-style-guide
 ```
 
 Create a PDF for the Accellera Style Guide, and enable renumbering of sections and cross-references down to the 5th level:
 
 ```bash
-npm run electric-book -- output --format screen-pdf --book accellera-style-guide --section-numbering 5
+$ npm run electric-book -- output --format screen-pdf --book accellera-style-guide --section-numbering 5
 ```
 
 Create a PDF for the IEEE SA Standards Style Manual (`ieee-sa-standards-style-manual`):
 
 ```bash
-npm run electric-book -- output --format screen-pdf --book ieee-sa-standards-style-manual
+$ npm run electric-book -- output --format screen-pdf --book ieee-sa-standards-style-manual
 ```
