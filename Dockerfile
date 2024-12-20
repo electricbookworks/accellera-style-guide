@@ -77,11 +77,11 @@ RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2
   dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 
 # Install PrinceXML for printing to PDF
-#RUN wget https://www.princexml.com/download/prince_11.4-1_ubuntu18.04_amd64.deb --no-check-certificate && \
+#RUN wget https://www.princexml.com/download/prince_11.4-1_ubuntu18.04_amd64.deb && \
 #  dpkg -i prince_11.4-1_ubuntu18.04_amd64.deb
 
 # Install pandoc for document conversion
-#RUN wget https://github.com/jgm/pandoc/releases/download/2.5/pandoc-2.5-1-amd64.deb --no-check-certificate && \
+#RUN wget https://github.com/jgm/pandoc/releases/download/2.5/pandoc-2.5-1-amd64.deb && \
 #  dpkg -i pandoc-2.5-1-amd64.deb
 
 # Update npm
@@ -112,5 +112,4 @@ RUN bash -lc "source ~/.bashrc"
 COPY --chown=adf:adf . .
 
 # Install Accellera Documentation Flow
-ENV NODE_TLS_REJECT_UNAUTHORIZED=0 
 RUN npm install
