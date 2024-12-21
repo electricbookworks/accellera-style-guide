@@ -35,6 +35,9 @@ exclude:
   - package-lock.json
   - CNAME
   - .sass-cache
+  - Docker*
+  - netlify.toml
+  - setup.sh
 
   # Included as-is in other files, no need to process
   - /assets/js/annotation.js
@@ -87,3 +90,5 @@ exclude:
   - /*/styles/screen-pdf*
   - /*/styles/web*
   - /*/styles/epub*
+  - /books/*
+

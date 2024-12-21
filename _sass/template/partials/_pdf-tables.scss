@@ -10,6 +10,64 @@ $pdf-tables: true !default;
 		width: 100%;
 		max-width: $page-width - $margin-inside - $margin-outside;
 	}
+
+	.table {
+		clear: both;
+		margin: $line-height-default 0 0 0;
+		font-size: $font-size-table !important;
+		padding: 0;
+        width: 100%;
+		page-break-inside: avoid;
+		box-sizing: border-box;
+        background-color: inherit;
+        font-family: $font-text-secondary;
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+
+		.table-body {
+
+			p {
+				clear: both;
+				page-break-inside: avoid;
+				page-break-before: avoid;
+				text-align: left;
+				text-indent: 0;
+				hyphens: none;
+	
+				// We avoid using these variables in outputs like web
+				// where font sizes are set in ems (i.e. proportionally).
+				// But here where we set font sizes in absolute units (pt)
+				// it's safe and useful to control font size in this way.
+				font-size: $font-size-default * $font-size-smaller;
+			}
+
+			.table-images {
+				text-align: center;
+				margin-bottom: $line-height-default;
+				padding-bottom: $line-height-default;
+			}
+	
+			.table-html, .table-md {}
+	
+			.title {}
+	
+			// Descriptions are hidden by default, and used for image alt text
+			.description {
+				display: none;
+			}
+	
+			.caption {
+				page-break-after: avoid;
+				margin: 0;
+				text-align: left;
+				text-indent: 0;
+				.table-reference {
+					font-weight: bold;
+				}
+			}
+		}
+	}
 	thead, th, .table-subhead {
 		font-weight: bold;
 		page-break-after: avoid;

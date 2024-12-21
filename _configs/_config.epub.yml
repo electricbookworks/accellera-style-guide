@@ -24,6 +24,9 @@ exclude:
   - package.json
   - package-lock.json
   - CNAME
+  - Docker*
+  - netlify.toml
+  - setup.sh
 
   # Included as-is in other files, no need to process
   - /assets/js/annotation.js
@@ -73,6 +76,7 @@ exclude:
   - /*/images/screen-pdf
   - /*/images/web
   - /*/images/app
+  - /books/*
 
   # Temporarily exclude book files for faster builds
   # - assets

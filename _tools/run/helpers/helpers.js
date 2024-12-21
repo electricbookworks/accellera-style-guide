@@ -604,6 +604,8 @@ async function convertXHTMLFiles (argv) {
 async function renderNumbering (argv) {
   'use strict'
 
+  if (argv['section-numbering'] == -1) return; // skip when disabled
+
   const fileNames = markdownFilePaths(argv);
   await numberSections(argv, fileNames, {});
 }
@@ -1751,6 +1753,7 @@ module.exports = {
   openOutputFile,
   outputTOC,
   pathExists,
+  projectSettings,
   processImages,
   refreshIndexes,
   renderIndexComments,

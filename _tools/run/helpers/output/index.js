@@ -30,15 +30,23 @@ const {
 } = require('../helpers.js')
 const merge = require('../merge')
 
+async function copyBooks(argv, from, to, removeDir=false) {
+  await fs.emptyDir(process.cwd() + to + argv.book);
+  // first copy source files in books to root folder
+  // such that jekyll finds them
+  fs.copySync(process.cwd() + from + argv.book, process.cwd() + to + argv.book);
+  if (removeDir) {
+    fs.removeSync(process.cwd() + from + argv.book);
+  }
+}
+
 // Web output
 async function web (argv) {
   'use strict'
 
   try {
     await fs.emptyDir(process.cwd() + '/_site')
-    if (argv['section-numbering'] > 0) {
-      await renderNumbering(argv)
-    }
+    await renderNumbering(argv)
     await jekyll(argv)
   } catch (error) {
     console.log(error)
@@ -51,13 +59,14 @@ async function pdf (argv) {
 
   try {
     await fs.emptyDir(process.cwd() + '/_site')
-    if (argv['section-numbering'] > 0) {
-      await renderNumbering(argv)
-    }
+    await copyBooks(argv, '/books/','/');
+    await renderNumbering(argv)
     await jekyll(argv)
     await renderIndexComments(argv)
     await renderIndexLinks(argv)
     await merge(argv)
+    await copyBooks(argv, '/','/_output/update/', true);
+    await copyBooks(argv, '/_site/','/_output/html/');
     await renderMathjax(argv)
     if (argv['pdf-engine'] === 'pagedjs') {
       await runPagedJS(argv)
@@ -76,9 +85,7 @@ async function epub (argv) {
 
   try {
     await fs.emptyDir(process.cwd() + '/_site')
-    if (argv['section-numbering'] > 0) {
-      await renderNumbering(argv)
-    }
+    await renderNumbering(argv)
     await jekyll(argv)
     await epubHTMLTransformations(argv)
     await renderIndexComments(argv)
@@ -169,9 +176,7 @@ async function app (argv) {
 
   try {
     await fs.emptyDir(process.cwd() + '/_site')
-    if (argv['section-numbering'] > 0) {
-      await renderNumbering(argv)
-    }
+    await renderNumbering(argv)
     await jekyll(argv)
     await fsPromises.mkdir(process.cwd() + '/_site/app/www')
     await assembleApp()
